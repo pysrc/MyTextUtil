@@ -5,6 +5,8 @@ import urllib.request
 import json
 import subprocess
 import os
+import base64
+from urllib import parse
 
 help_info = """
 \n\n----------Upper----------\n\n
@@ -21,6 +23,7 @@ ctrl+alt+t 测试命令
 ctrl+alt+h 帮助命令
 ctrl+alt+p 执行python脚本
 ctrl+alt+f 正则提取内容
+... 更多功能见右键弹出菜单
 
 curl 有tab键提示补全功能
 """
@@ -243,7 +246,45 @@ class ExtractCommand(sublime_plugin.TextCommand):
             self.view.run_command("ins", {"txt": split + res})
         def on_change(x): pass
         def on_cancel(): pass
-        sublime.Window.show_input_panel(self.view.window(), "正则内容提取:", r"(\w+)", on_done, on_change, on_cancel)
+        sublime.Window.show_input_panel(self.view.window(), "Regex:", r"(\w+)", on_done, on_change, on_cancel)
+
+# 编码解码
+class EndecodeCommand(sublime_plugin.TextCommand):
+    def run(self, edit, **args):
+        reg, txt = getSel(self.view)
+        if args["func"] == "encoding-base64":
+            txt = str(base64.b64encode(txt.encode("utf-8")), encoding="utf-8")
+        elif args["func"] == "decoding-base64":
+            txt = base64.b64decode(txt.encode("utf-8")).decode("utf-8")
+        elif args["func"] == "encoding-url":
+            txt = parse.quote(txt)
+        elif args["func"] == "decoding-url":
+            txt = parse.unquote(txt)
+        elif args["func"] == "encoding-unicode":
+            txt = str(txt.encode('unicode_escape'), encoding="utf-8")
+        elif args["func"] == "decoding-unicode":
+            txt = bytes(txt, encoding="utf-8").decode('unicode_escape')
+        else:
+            return
+        self.view.replace(edit, reg, txt)
+
+# Google翻译接口
+def google_translation(sl, tl, txt):
+    # sl 源语言
+    # tl 翻译后语言
+    # txt 文本
+    req = urllib.request.urlopen("http://translate.google.cn/translate_a/single?client=at&sl=" + sl + "&tl=" + tl + "&dt=t&q=" + parse.quote(txt))
+    res = req.read()
+    res=res.decode("utf-8")
+    res=json.loads(res)
+    return res[0][0][0]
+
+# 翻译
+class TranslationCommand(sublime_plugin.TextCommand):
+    def run(self, edit, **args):
+        reg, txt = getSel(self.view)
+        txt = google_translation(args["sl"], args["tl"], txt)
+        self.view.replace(edit, reg, txt)
 
 # 帮助信息
 class MyhelpCommand(sublime_plugin.TextCommand):
@@ -259,6 +300,7 @@ class MyTextUtil(sublime_plugin.EventListener):
         cmds = []
         cmds.append(["curl\tcurl -X POST...", """curl -X POST 'http://127.0.0.1:8080/demo' \\\n  -H "Content-Type: application/json" \\\n  --data-binary '{}'"""])
         return (cmds, subtype)
+
 
 class TestCommand(sublime_plugin.TextCommand):
     def run(self, edit):

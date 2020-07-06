@@ -1,0 +1,172 @@
+[
+    {
+        "caption": "My Text Util", 
+        "id": "mytextutil", 
+        "children": [
+            {
+                "caption": "Bash", 
+                "command": "sh", 
+                "id": "sh"
+            }, 
+            {
+                "caption": "Open Folder/File/Url...", 
+                "command": "open", 
+                "id": "open"
+            }, 
+            {
+                "caption": "Mybatis Log -> Sql", 
+                "command": "sql", 
+                "id": "sql"
+            }, 
+            {
+                "caption": "To Upper", 
+                "command": "up", 
+                "id": "up"
+            }, 
+            {
+                "caption": "To Lower", 
+                "command": "low", 
+                "id": "low"
+            }, 
+            {
+                "caption": "Format Json/Sql", 
+                "command": "myformat", 
+                "id": "myformat"
+            }, 
+            {
+                "caption": "Excute Python Code", 
+                "command": "py", 
+                "id": "py"
+            }, 
+            {
+                "caption": "Mybatis Builder", 
+                "command": "mybatis", 
+                "id": "mybatis"
+            }, 
+            {
+                "caption": "Json Compression", 
+                "command": "noformat", 
+                "id": "noformat"
+            }, 
+            {
+                "caption": "Regex Extract", 
+                "command": "extract", 
+                "id": "extract"
+            }, 
+            {
+                "caption": "Encoding / Decoding", 
+                "id": "endecode", 
+                "children": [
+                    {
+                        "caption": "Base64", 
+                        "id": "base64", 
+                        "children": [
+                            {
+                                "caption": "Encoding", 
+                                "command": "endecode", 
+                                "id": "encoding-base64", 
+                                "args": {
+                                    "func": "encoding-base64"
+                                }
+                            }, 
+                            {
+                                "caption": "Decoding", 
+                                "command": "endecode", 
+                                "id": "decoding-base64", 
+                                "args": {
+                                    "func": "decoding-base64"
+                                }
+                            }
+                        ]
+                    }, 
+                    {
+                        "caption": "URL", 
+                        "id": "url", 
+                        "children": [
+                            {
+                                "caption": "Encoding", 
+                                "command": "endecode", 
+                                "id": "encoding-url", 
+                                "args": {
+                                    "func": "encoding-url"
+                                }
+                            }, 
+                            {
+                                "caption": "Decoding", 
+                                "command": "endecode", 
+                                "id": "decoding-url", 
+                                "args": {
+                                    "func": "decoding-url"
+                                }
+                            }
+                        ]
+                    }, 
+                    {
+                        "caption": "Unicode", 
+                        "id": "unicode", 
+                        "children": [
+                            {
+                                "caption": "Encoding", 
+                                "command": "endecode", 
+                                "id": "encoding-unicode", 
+                                "args": {
+                                    "func": "encoding-unicode"
+                                }
+                            }, 
+                            {
+                                "caption": "Decoding", 
+                                "command": "endecode", 
+                                "id": "decoding-unicode", 
+                                "args": {
+                                    "func": "decoding-unicode"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }, 
+            {
+                "caption": "Translation", 
+                "id": "translation", 
+                "children": [
+                    {
+                        "caption": "简体 -> English", 
+                        "command": "translation", 
+                        "id": "tran-cn-en", 
+                        "args": {
+                            "sl": "zh-CN", 
+                            "tl": "en"
+                        }
+                    }, 
+                    {
+                        "caption": "English -> 简体", 
+                        "command": "translation", 
+                        "id": "tran-en-cn", 
+                        "args": {
+                            "sl": "en", 
+                            "tl": "zh-CN"
+                        }
+                    }, 
+                    {
+                        "caption": "简体 -> 繁體", 
+                        "command": "translation", 
+                        "id": "tran-cn-tw", 
+                        "args": {
+                            "sl": "zh-CN", 
+                            "tl": "zh-TW"
+                        }
+                    }, 
+                    {
+                        "caption": "繁體 -> 简体", 
+                        "command": "translation", 
+                        "id": "tran-tw-cn", 
+                        "args": {
+                            "sl": "zh-TW", 
+                            "tl": "zh-CN"
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+]

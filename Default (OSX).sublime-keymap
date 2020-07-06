@@ -1,0 +1,15 @@
+[
+  { "keys": ["ctrl+alt+u"], "command": "up" },
+  { "keys": ["ctrl+alt+l"], "command": "low" },
+  { "keys": ["ctrl+alt+q"], "command": "sql" },
+  { "keys": ["ctrl+alt+/"], "command": "myformat" },
+  { "keys": ["ctrl+alt+s"], "command": "sh" },
+  { "keys": ["ctrl+alt+c"], "command": "sh" },
+  { "keys": ["ctrl+alt+o"], "command": "open" },
+  { "keys": ["ctrl+alt+p"], "command": "py" },
+  { "keys": ["ctrl+alt+m"], "command": "mybatis" },
+  { "keys": ["ctrl+alt+n"], "command": "noformat" },
+  { "keys": ["ctrl+alt+t"], "command": "test" },
+  { "keys": ["ctrl+alt+h"], "command": "myhelp" },
+  { "keys": ["ctrl+alt+f"], "command": "extract" },
+]

@@ -1,15 +1,18 @@
 [
     {
-        "caption": "My Text Util", 
-        "id": "mytextutil", 
         "children": [
             {
-                "caption": "Bash", 
+                "caption": "Shell (Windows -> Git)", 
                 "command": "sh", 
                 "id": "sh"
             }, 
             {
-                "caption": "Open Folder/File/Url...", 
+                "caption": "Change Current Dir", 
+                "command": "chdir", 
+                "id": "chdir"
+            }, 
+            {
+                "caption": "Open Folder/File/Url...(Win)", 
                 "command": "open", 
                 "id": "open"
             }, 
@@ -29,7 +32,7 @@
                 "id": "low"
             }, 
             {
-                "caption": "Format Json/Sql", 
+                "caption": "Format Json/Sql(Net)", 
                 "command": "myformat", 
                 "id": "myformat"
             }, 
@@ -54,12 +57,8 @@
                 "id": "extract"
             }, 
             {
-                "caption": "Encoding / Decoding", 
-                "id": "endecode", 
                 "children": [
                     {
-                        "caption": "Base64", 
-                        "id": "base64", 
                         "children": [
                             {
                                 "caption": "Encoding", 
@@ -77,11 +76,11 @@
                                     "func": "decoding-base64"
                                 }
                             }
-                        ]
+                        ], 
+                        "caption": "Base64", 
+                        "id": "base64"
                     }, 
                     {
-                        "caption": "URL", 
-                        "id": "url", 
                         "children": [
                             {
                                 "caption": "Encoding", 
@@ -99,11 +98,11 @@
                                     "func": "decoding-url"
                                 }
                             }
-                        ]
+                        ], 
+                        "caption": "URL", 
+                        "id": "url"
                     }, 
                     {
-                        "caption": "Unicode", 
-                        "id": "unicode", 
                         "children": [
                             {
                                 "caption": "Encoding", 
@@ -121,13 +120,15 @@
                                     "func": "decoding-unicode"
                                 }
                             }
-                        ]
+                        ], 
+                        "caption": "Unicode", 
+                        "id": "unicode"
                     }
-                ]
+                ], 
+                "caption": "Encoding / Decoding", 
+                "id": "endecode"
             }, 
             {
-                "caption": "Translation", 
-                "id": "translation", 
                 "children": [
                     {
                         "caption": "简体 -> English", 
@@ -164,9 +165,31 @@
                             "sl": "zh-TW", 
                             "tl": "zh-CN"
                         }
+                    }, 
+                    {
+                        "caption": "简体 -> 日本語", 
+                        "command": "translation", 
+                        "id": "tran-cn-ja", 
+                        "args": {
+                            "sl": "zh-CN", 
+                            "tl": "ja"
+                        }
+                    }, 
+                    {
+                        "caption": "日本語 -> 简体", 
+                        "command": "translation", 
+                        "id": "tran-ja-cn", 
+                        "args": {
+                            "sl": "ja", 
+                            "tl": "zh-CN"
+                        }
                     }
-                ]
+                ], 
+                "caption": "Translation (Net)", 
+                "id": "translation"
             }
-        ]
+        ], 
+        "caption": "My Text Util", 
+        "id": "mytextutil"
     }
 ]

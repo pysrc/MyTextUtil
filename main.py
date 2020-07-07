@@ -28,10 +28,14 @@ ctrl+alt+f 正则提取内容
 curl 有tab键提示补全功能
 """
 
+# 当前命令文件夹
+current_dir = ""
+
 def sql_format(sql):
     sql = "query=" + sql
     req = urllib.request.urlopen("https://www.w3cschool.cn/statics/demosource/tools/toolsAjax.php?action=sql_formatter",bytes(sql, "utf-8"))
     res = req.read()
+    req.close()
     res = res.decode('unicode_escape')
     res = re.findall('"result":"([\s\S]+?)"',res)
     return res[0]
@@ -189,10 +193,12 @@ class NoformatCommand(sublime_plugin.TextCommand):
 # 系统命令执行(sh)
 class ShCommand(sublime_plugin.TextCommand):
     def run(self, edit):
+        global current_dir
         file = self.view.file_name()
-        if file is not None:
-            pt = os.path.dirname(file)
-            os.chdir(pt)
+        if file is not None and current_dir == "":
+            current_dir = os.path.dirname(file)
+        if current_dir != "":
+            os.chdir(current_dir)
         reg, txt = getSel(self.view)
         res = "\n\n----------sh----------\n\n"
         subp = subprocess.Popen("sh",shell=True,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
@@ -230,6 +236,13 @@ class PyCommand(sublime_plugin.TextCommand):
             self.view.insert(edit, self.view.size(), str(x) + "\n")
         self.view.insert(edit, self.view.size(), split)
         exec(txt)
+
+# 设置命令执行目录
+class ChdirCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        _, txt = getSel(self.view)
+        global current_dir
+        current_dir = txt
 
 class InsCommand(sublime_plugin.TextCommand):
     def run(self, edit, **args):
@@ -275,15 +288,70 @@ def google_translation(sl, tl, txt):
     # txt 文本
     req = urllib.request.urlopen("http://translate.google.cn/translate_a/single?client=at&sl=" + sl + "&tl=" + tl + "&dt=t&q=" + parse.quote(txt))
     res = req.read()
+    req.close()
     res=res.decode("utf-8")
     res=json.loads(res)
     return res[0][0][0]
 
+# Google翻译接口获取tk
+def get_tk(a, tkk):
+    def RL(a, b):
+        for d in range(0, len(b)-2, 3):
+            c = b[d + 2]
+            c = ord(c[0]) - 87 if 'a' <= c else int(c)
+            c = a >> c if '+' == b[d + 1] else a << c
+            a = a + c & 4294967295 if '+' == b[d] else a ^ c
+        return a
+    g = []
+    f = 0
+    while f < len(a):
+        c = ord(a[f])
+        if 128 > c:
+            g.append(c)
+        else:
+            if 2048 > c:
+                g.append((c >> 6) | 192)
+            else:
+                if (55296 == (c & 64512)) and (f + 1 < len(a)) and (56320 == (ord(a[f+1]) & 64512)):
+                    f += 1
+                    c = 65536 + ((c & 1023) << 10) + (ord(a[f]) & 1023)
+                    g.append((c >> 18) | 240)
+                    g.append((c >> 12) & 63 | 128)
+                else:
+                    g.append((c >> 12) | 224)
+                    g.append((c >> 6) & 63 | 128)
+            g.append((c & 63) | 128)
+        f += 1
+    e = tkk.split('.')
+    h = int(e[0]) or 0
+    t = h
+    for item in g:
+        t += item
+        t = RL(t, '+-a^+6')
+    t = RL(t, '+-3^+b+-f')
+    t ^= int(e[1]) or 0
+    if 0 > t:
+        t = (t & 2147483647) + 2147483648
+    result = t % 1000000
+    return str(result) + '.' + str(result ^ h)
+
+# Google翻译接口(不禁止IP，但是tkk需要去谷歌网页版找)
+def google_translation_tk(sl, tl, txt):
+    tkk = "442808.1145435913"
+    # tkk = "422392.71207223"
+    tk = get_tk(txt, tkk)
+    url = "https://translate.google.cn/translate_a/single?client=webapp&sl=" + sl + "&tl=" + tl + "&hl=zh-CN&dt=at&dt=bd&dt=ex&dt=ld&dt=md&dt=qca&dt=rw&dt=rm&dt=sos&dt=ss&dt=t&otf=1&ssel=0&tsel=0&kc=1&tk=" + tk + "&q=" + parse.quote(txt)
+    req = urllib.request.urlopen(url)
+    res = req.read()
+    req.close()
+    res=res.decode("utf-8")
+    res=json.loads(res)
+    return res[0][0][0]
 # 翻译
 class TranslationCommand(sublime_plugin.TextCommand):
     def run(self, edit, **args):
         reg, txt = getSel(self.view)
-        txt = google_translation(args["sl"], args["tl"], txt)
+        txt = google_translation_tk(args["sl"], args["tl"], txt)
         self.view.replace(edit, reg, txt)
 
 # 帮助信息

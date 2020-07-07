@@ -1,0 +1,11 @@
+%YAML 1.2
+---
+name: 'MyTextUtil'
+file_extensions:
+  - txt
+  - my
+scope: source.txt
+contexts:
+  main:
+    - match: (curl|cat|echo)
+      scope: keyword.control.txt

@@ -31,6 +31,23 @@ curl 有tab键提示补全功能
 # 当前命令文件夹
 current_dir = ""
 
+# 标准配置
+stand_config = None
+# 模块默认配置
+my_config = None
+
+# 获取配置
+def get_config(key):
+    global stand_config, my_config
+    if stand_config is None:
+        stand_config = sublime.load_settings("Preferences.sublime-settings")
+    if my_config is None:
+        my_config = sublime.load_settings("MyTextUtil.sublime-settings")
+    val = stand_config.get(key)
+    if val is None:
+        val = my_config.get(key)
+    return val
+
 def sql_format(sql):
     sql = "query=" + sql
     req = urllib.request.urlopen("https://www.w3cschool.cn/statics/demosource/tools/toolsAjax.php?action=sql_formatter",bytes(sql, "utf-8"))
@@ -337,9 +354,7 @@ def get_tk(a, tkk):
 
 # Google翻译接口(不禁止IP，但是tkk需要去谷歌网页版找)
 def google_translation_tk(sl, tl, txt):
-    tkk = "442808.1145435913"
-    # tkk = "422392.71207223"
-    tk = get_tk(txt, tkk)
+    tk = get_tk(txt, get_config("google_translation_tkk"))
     url = "https://translate.google.cn/translate_a/single?client=webapp&sl=" + sl + "&tl=" + tl + "&hl=zh-CN&dt=at&dt=bd&dt=ex&dt=ld&dt=md&dt=qca&dt=rw&dt=rm&dt=sos&dt=ss&dt=t&otf=1&ssel=0&tsel=0&kc=1&tk=" + tk + "&q=" + parse.quote(txt)
     req = urllib.request.urlopen(url)
     res = req.read()
@@ -372,4 +387,5 @@ class MyTextUtil(sublime_plugin.EventListener):
 
 class TestCommand(sublime_plugin.TextCommand):
     def run(self, edit):
-        sublime.Window.show_quick_panel(self.view.window(), ["Hello", "sdsf"], lambda x : print(x))
+        # sublime.Window.show_quick_panel(self.view.window(), ["Hello", "sdsf"], lambda x : print(x))
+        print(get_config("google_translation_tkk"))

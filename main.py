@@ -261,9 +261,13 @@ class ChdirCommand(sublime_plugin.TextCommand):
         global current_dir
         current_dir = txt
 
-class InsCommand(sublime_plugin.TextCommand):
+class MySyncCommand(sublime_plugin.TextCommand):
     def run(self, edit, **args):
-        self.view.insert(edit, self.view.size(), args["txt"])
+        if args["op"] == "insert":
+            self.view.insert(edit, self.view.size(), args["txt"])
+        elif args["op"] == "replace":
+            reg, txt = getSel(self.view)
+            self.view.replace(edit, reg, args["txt"])
 
 # 正则提取
 class ExtractCommand(sublime_plugin.TextCommand):
@@ -273,15 +277,37 @@ class ExtractCommand(sublime_plugin.TextCommand):
             res = re.findall(x, txt)
             res = "\n".join(res)
             split = "\n\n----------Extract----------\n\n"
-            self.view.run_command("ins", {"txt": split + res})
+            self.view.run_command("my_sync", {"op": "insert", "txt": split + res})
         def on_change(x): pass
         def on_cancel(): pass
         sublime.Window.show_input_panel(self.view.window(), "Regex:", r"(\w+)", on_done, on_change, on_cancel)
+
+
+# 请求本地服务器
+def server_request(suf, txt):
+    host = get_config("server_host")
+    port = get_config("server_port")
+    req = urllib.request.urlopen("http://" + host + ":" + port + "/" + suf, base64.b16encode(txt.encode("utf-8")).decode("utf-8").lower().encode())
+    res = req.read()
+    req.close()
+    res = res.decode('utf-8')
+    return res
 
 # 编码解码
 class EndecodeCommand(sublime_plugin.TextCommand):
     def run(self, edit, **args):
         reg, txt = getSel(self.view)
+        def aes_en(x): 
+            _, txt = getSel(self.view)
+            txt = base64.b16encode(txt.encode("utf-8")).decode("utf-8").lower()
+            txt = server_request("aes-en", '{"Pwd":"' + x.replace('"', "\\\"") + '","Txt":"' + txt + '"}')
+            self.view.run_command("my_sync", {"op": "replace", "txt": txt})
+        def aes_de(x): 
+            _, txt = getSel(self.view)
+            txt = server_request("aes-de", '{"Pwd":"' + x.replace('"', "\\\"") + '","Txt":"' + txt + '"}')
+            self.view.run_command("my_sync", {"op": "replace", "txt": txt})
+        def on_change(x): pass
+        def on_cancel(): pass
         if args["func"] == "encoding-base64":
             txt = str(base64.b64encode(txt.encode("utf-8")), encoding="utf-8")
         elif args["func"] == "decoding-base64":
@@ -294,6 +320,16 @@ class EndecodeCommand(sublime_plugin.TextCommand):
             txt = str(txt.encode('unicode_escape'), encoding="utf-8")
         elif args["func"] == "decoding-unicode":
             txt = bytes(txt, encoding="utf-8").decode('unicode_escape')
+        elif args["func"] == "encoding-hex":
+            txt = base64.b16encode(txt.encode("utf-8")).decode("utf-8").lower()
+        elif args["func"] == "decoding-hex":
+            txt = base64.b16decode(txt.upper().encode("utf-8")).decode("utf-8")
+        elif args["func"] == "encoding-aes":
+            sublime.Window.show_input_panel(self.view.window(), "Password:", "123456789", aes_en, on_change, on_cancel)
+            return
+        elif args["func"] == "decoding-aes":
+            sublime.Window.show_input_panel(self.view.window(), "Password:", "123456789", aes_de, on_change, on_cancel)
+            return
         else:
             return
         self.view.replace(edit, reg, txt)
@@ -384,8 +420,16 @@ class MyTextUtil(sublime_plugin.EventListener):
         cmds.append(["curl\tcurl -X POST...", """curl -X POST 'http://127.0.0.1:8080/demo' \\\n  -H "Content-Type: application/json" \\\n  --data-binary '{}'"""])
         return (cmds, subtype)
 
-
 class TestCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         # sublime.Window.show_quick_panel(self.view.window(), ["Hello", "sdsf"], lambda x : print(x))
         print(get_config("google_translation_tkk"))
+
+
+# 以下是初始化逻辑，主要是开启后端服务器
+
+_base_dir = os.path.dirname(os.path.abspath(__file__))
+def plugin_loaded():
+    if sublime.platform() == "windows":
+        global _server
+        # _server = subprocess.Popen(_base_dir + "\\bin\\MyUtilServer.exe -p " + get_config("server_port"), shell=True)

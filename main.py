@@ -228,7 +228,8 @@ class ShCommand(sublime_plugin.TextCommand):
         if t2 != "":
             t2 = "\n\n----------Execute Output----------\n\n" + t2
             res = t2 + res
-        subp.kill()
+        if subp.poll() != 0:
+            subp.kill()
         self.view.insert(edit, self.view.size(), res)
 
 # 打开关联的文件夹/网站等
@@ -328,10 +329,10 @@ class EndecodeCommand(sublime_plugin.TextCommand):
         elif args["func"] == "decoding-hex":
             txt = base64.b16decode(txt.upper().encode("utf-8")).decode("utf-8")
         elif args["func"] == "encoding-aes":
-            sublime.Window.show_input_panel(self.view.window(), "Password:", "123456789", aes_en, on_change, on_cancel)
+            sublime.Window.show_input_panel(self.view.window(), "Password:", "password", aes_en, on_change, on_cancel)
             return
         elif args["func"] == "decoding-aes":
-            sublime.Window.show_input_panel(self.view.window(), "Password:", "123456789", aes_de, on_change, on_cancel)
+            sublime.Window.show_input_panel(self.view.window(), "Password:", "password", aes_de, on_change, on_cancel)
             return
         elif args["func"] == "start-server":
             # 开启后端服务
@@ -447,6 +448,17 @@ class MyUtilThread(threading.Thread):
             s.sendto(b'ok', addr)
 
 def start_server():
+    # 不开启Server
+    if not get_config("server_enabled"):
+        return
+    # 判断是否安装Golang
+    if os.getenv("GOROOT") is None:
+        return
+    goexe = os.getenv("GOROOT")+os.sep+"bin"+os.sep+"go"
+    if sublime.platform() == "windows":
+        goexe += ".exe"
+    if not os.path.exists(goexe):
+        return
     _base_dir = os.path.dirname(os.path.abspath(__file__))
     # 判断是否编译
     if not os.path.exists(_base_dir + os.sep + "/bin"):
@@ -467,5 +479,4 @@ def start_server():
     print(cmd)
     subprocess.Popen(cmd, shell=True)
 def plugin_loaded():
-    if get_config("server_enabled"):
-        start_server()
+    start_server()

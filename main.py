@@ -430,13 +430,25 @@ class MyTextUtil(sublime_plugin.EventListener):
 class TestCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         # sublime.Window.show_quick_panel(self.view.window(), ["Hello", "sdsf"], lambda x : print(x))
-        print(get_config("google_translation_tkk"))
-
+        pass
 
 # 以下是初始化逻辑
 import socket
 import threading
 import time
+import platform
+
+# 检测可执行文件是否存在
+def exe_in_path(exe):
+    if platform.system() == "Windows":
+        exe = exe + ".exe"
+    path = os.getenv("PATH")
+    dirs = path.split(os.path.pathsep)
+    for i in dirs:
+        if os.path.exists(i + os.sep + exe) and os.path.isfile(i + os.sep + exe):
+            return True
+    return False
+
 class MyUtilThread(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
@@ -452,10 +464,10 @@ def start_server():
     if not get_config("server_enabled"):
         return
     # 判断是否安装Golang
-    if os.getenv("GOROOT") is None:
+    if not exe_in_path("go"):
         return
     goexe = os.getenv("GOROOT")+os.sep+"bin"+os.sep+"go"
-    if sublime.platform() == "windows":
+    if platform.system() == "Windows":
         goexe += ".exe"
     if not os.path.exists(goexe):
         return
@@ -464,7 +476,7 @@ def start_server():
     if not os.path.exists(_base_dir + os.sep + "/bin"):
         os.mkdir(_base_dir + os.sep + "/bin")
     exe = _base_dir + os.sep + "bin" + os.sep + "MyUtilServer"
-    if sublime.platform() == "windows":
+    if platform.system() == "Windows":
         exe = exe + ".exe"
     if not os.path.exists(exe):
         print("Building Server...")
@@ -479,4 +491,5 @@ def start_server():
     print(cmd)
     subprocess.Popen(cmd, shell=True)
 def plugin_loaded():
-    start_server()
+    server = threading.Thread(target=start_server)
+    server.start()

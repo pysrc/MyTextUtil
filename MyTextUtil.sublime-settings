@@ -1,5 +1,6 @@
 {
-	"google_translation_tkk": "442808.1145435913",
-	"server_host": "127.0.0.1",
-	"server_port": "9236"
+    "echo_port": "6543", 
+    "server_host": "127.0.0.1", 
+    "server_port": "5645", 
+    "google_translation_tkk": "442808.1145435913"
 }

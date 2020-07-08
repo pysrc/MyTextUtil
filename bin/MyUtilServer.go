@@ -10,8 +10,10 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"os"
+	"time"
 )
 
 type MyRequest struct {
@@ -92,10 +94,32 @@ func AesCBCDncrypt(encryptData, key, iv []byte) ([]byte, error) {
 	return encryptData, nil
 }
 
+// 维持心跳
+func Heart(port string) {
+	udpAddr, _ := net.ResolveUDPAddr("udp4", "0.0.0.0:"+port)
+	udpConn, err := net.ListenUDP("udp", udpAddr)
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer udpConn.Close()
+	buf := make([]byte, 2)
+	for {
+		// 2 秒没收到心跳就超时
+		udpConn.SetReadDeadline(time.Now().Add(time.Second * 2))
+		_, _, err := udpConn.ReadFromUDP(buf)
+		if err != nil {
+			os.Exit(0)
+		}
+	}
+}
+
 func main() {
 	var port string
+	var eport string
 	flag.StringVar(&port, "p", "9236", "The server port.")
+	flag.StringVar(&eport, "e", "7774", "Heartbeat receiving port.")
 	flag.Parse()
+	go Heart(eport)
 	http.HandleFunc("/exit", func(w http.ResponseWriter, r *http.Request) {
 		os.Exit(0)
 	})

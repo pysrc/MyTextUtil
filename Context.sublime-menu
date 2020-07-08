@@ -1,236 +1,244 @@
 [
     {
-        "caption": "My Text Util", 
         "id": "mytextutil", 
+        "caption": "My Text Util", 
         "children": [
             {
-                "caption": "Shell (Windows -> Git)", 
                 "id": "sh", 
+                "caption": "Shell (Windows -> Git)", 
                 "command": "sh"
             }, 
             {
-                "caption": "Change Current Dir", 
                 "id": "chdir", 
+                "caption": "Change Current Dir", 
                 "command": "chdir"
             }, 
             {
-                "caption": "Open Folder/File/Url...(Win)", 
                 "id": "open", 
+                "caption": "Open Folder/File/Url...(Win)", 
                 "command": "open"
             }, 
             {
-                "caption": "Mybatis Log -> Sql", 
                 "id": "sql", 
+                "caption": "Mybatis Log -> Sql", 
                 "command": "sql"
             }, 
             {
-                "caption": "To Upper", 
                 "id": "up", 
+                "caption": "To Upper", 
                 "command": "up"
             }, 
             {
-                "caption": "To Lower", 
                 "id": "low", 
+                "caption": "To Lower", 
                 "command": "low"
             }, 
             {
-                "caption": "Format Json/Sql(Net)", 
                 "id": "myformat", 
+                "caption": "Format Json/Sql(Net)", 
                 "command": "myformat"
             }, 
             {
-                "caption": "Excute Python Code", 
                 "id": "py", 
+                "caption": "Excute Python Code", 
                 "command": "py"
             }, 
             {
-                "caption": "Mybatis Builder", 
                 "id": "mybatis", 
+                "caption": "Mybatis Builder", 
                 "command": "mybatis"
             }, 
             {
-                "caption": "Json Compression", 
                 "id": "noformat", 
+                "caption": "Json Compression", 
                 "command": "noformat"
             }, 
             {
-                "caption": "Regex Extract", 
                 "id": "extract", 
+                "caption": "Regex Extract", 
                 "command": "extract"
             }, 
             {
-                "caption": "Encoding / Decoding", 
+                "id": "start", 
+                "caption": "Start Server (Go)", 
+                "command": "endecode", 
+                "args": {
+                    "func": "start-server"
+                }
+            }, 
+            {
                 "id": "endecode", 
+                "caption": "Encoding / Decoding", 
                 "children": [
                     {
-                        "caption": "Base64", 
                         "id": "base64", 
+                        "caption": "Base64", 
                         "children": [
                             {
+                                "id": "encoding-base64", 
                                 "caption": "Encoding", 
+                                "command": "endecode", 
                                 "args": {
                                     "func": "encoding-base64"
-                                }, 
-                                "id": "encoding-base64", 
-                                "command": "endecode"
+                                }
                             }, 
                             {
+                                "id": "decoding-base64", 
                                 "caption": "Decoding", 
+                                "command": "endecode", 
                                 "args": {
                                     "func": "decoding-base64"
-                                }, 
-                                "id": "decoding-base64", 
-                                "command": "endecode"
+                                }
                             }
                         ]
                     }, 
                     {
-                        "caption": "Hex", 
                         "id": "hex", 
+                        "caption": "Hex", 
                         "children": [
                             {
+                                "id": "encoding-hex", 
                                 "caption": "Encoding", 
+                                "command": "endecode", 
                                 "args": {
                                     "func": "encoding-hex"
-                                }, 
-                                "id": "encoding-hex", 
-                                "command": "endecode"
+                                }
                             }, 
                             {
+                                "id": "decoding-hex", 
                                 "caption": "Decoding", 
+                                "command": "endecode", 
                                 "args": {
                                     "func": "decoding-hex"
-                                }, 
-                                "id": "decoding-hex", 
-                                "command": "endecode"
+                                }
                             }
                         ]
                     }, 
                     {
-                        "caption": "URL", 
                         "id": "url", 
+                        "caption": "URL", 
                         "children": [
                             {
+                                "id": "encoding-url", 
                                 "caption": "Encoding", 
+                                "command": "endecode", 
                                 "args": {
                                     "func": "encoding-url"
-                                }, 
-                                "id": "encoding-url", 
-                                "command": "endecode"
+                                }
                             }, 
                             {
+                                "id": "decoding-url", 
                                 "caption": "Decoding", 
+                                "command": "endecode", 
                                 "args": {
                                     "func": "decoding-url"
-                                }, 
-                                "id": "decoding-url", 
-                                "command": "endecode"
+                                }
                             }
                         ]
                     }, 
                     {
-                        "caption": "Unicode", 
                         "id": "unicode", 
+                        "caption": "Unicode", 
                         "children": [
                             {
+                                "id": "encoding-unicode", 
                                 "caption": "Encoding", 
+                                "command": "endecode", 
                                 "args": {
                                     "func": "encoding-unicode"
-                                }, 
-                                "id": "encoding-unicode", 
-                                "command": "endecode"
+                                }
                             }, 
                             {
+                                "id": "decoding-unicode", 
                                 "caption": "Decoding", 
+                                "command": "endecode", 
                                 "args": {
                                     "func": "decoding-unicode"
-                                }, 
-                                "id": "decoding-unicode", 
-                                "command": "endecode"
+                                }
                             }
                         ]
                     }, 
                     {
-                        "caption": "Encrypt", 
                         "id": "aes", 
+                        "caption": "Encrypt", 
                         "children": [
                             {
+                                "id": "encoding-aes", 
                                 "caption": "Encoding", 
+                                "command": "endecode", 
                                 "args": {
                                     "func": "encoding-aes"
-                                }, 
-                                "id": "encoding-aes", 
-                                "command": "endecode"
+                                }
                             }, 
                             {
+                                "id": "decoding-aes", 
                                 "caption": "Decoding", 
+                                "command": "endecode", 
                                 "args": {
                                     "func": "decoding-aes"
-                                }, 
-                                "id": "decoding-aes", 
-                                "command": "endecode"
+                                }
                             }
                         ]
                     }
                 ]
             }, 
             {
-                "caption": "Translation (Net)", 
                 "id": "translation", 
+                "caption": "Translation (Net)", 
                 "children": [
                     {
-                        "caption": "简体 -> English", 
-                        "args": {
-                            "tl": "en", 
-                            "sl": "zh-CN"
-                        }, 
                         "id": "tran-cn-en", 
-                        "command": "translation"
+                        "caption": "简体 -> English", 
+                        "command": "translation", 
+                        "args": {
+                            "sl": "zh-CN", 
+                            "tl": "en"
+                        }
                     }, 
                     {
-                        "caption": "English -> 简体", 
-                        "args": {
-                            "tl": "zh-CN", 
-                            "sl": "en"
-                        }, 
                         "id": "tran-en-cn", 
-                        "command": "translation"
+                        "caption": "English -> 简体", 
+                        "command": "translation", 
+                        "args": {
+                            "sl": "en", 
+                            "tl": "zh-CN"
+                        }
                     }, 
                     {
-                        "caption": "简体 -> 繁體", 
-                        "args": {
-                            "tl": "zh-TW", 
-                            "sl": "zh-CN"
-                        }, 
                         "id": "tran-cn-tw", 
-                        "command": "translation"
+                        "caption": "简体 -> 繁體", 
+                        "command": "translation", 
+                        "args": {
+                            "sl": "zh-CN", 
+                            "tl": "zh-TW"
+                        }
                     }, 
                     {
-                        "caption": "繁體 -> 简体", 
-                        "args": {
-                            "tl": "zh-CN", 
-                            "sl": "zh-TW"
-                        }, 
                         "id": "tran-tw-cn", 
-                        "command": "translation"
+                        "caption": "繁體 -> 简体", 
+                        "command": "translation", 
+                        "args": {
+                            "sl": "zh-TW", 
+                            "tl": "zh-CN"
+                        }
                     }, 
                     {
-                        "caption": "简体 -> 日本語", 
-                        "args": {
-                            "tl": "ja", 
-                            "sl": "zh-CN"
-                        }, 
                         "id": "tran-cn-ja", 
-                        "command": "translation"
+                        "caption": "简体 -> 日本語", 
+                        "command": "translation", 
+                        "args": {
+                            "sl": "zh-CN", 
+                            "tl": "ja"
+                        }
                     }, 
                     {
-                        "caption": "日本語 -> 简体", 
-                        "args": {
-                            "tl": "zh-CN", 
-                            "sl": "ja"
-                        }, 
                         "id": "tran-ja-cn", 
-                        "command": "translation"
+                        "caption": "日本語 -> 简体", 
+                        "command": "translation", 
+                        "args": {
+                            "sl": "ja", 
+                            "tl": "zh-CN"
+                        }
                     }
                 ]
             }

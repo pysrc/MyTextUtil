@@ -96,13 +96,13 @@ def tocamel(s):
 javaSql = {
   "Integer": ("TINYINT"),
   "Long": ("SMALLINT", "MEDIUMINT", "INT", "INTEGER", "BIGINT", "INTEGER"),
-  "BigBecimal": ("FLOAT", "DOUBLE", "DECIMAL", "NUMBER", "FLOAT"),
+  "BigDecimal": ("FLOAT", "DOUBLE", "DECIMAL", "NUMBER", "FLOAT"),
   "Date": ("DATE", "TIME", "YEAR", "DATETIME", "TIMESTAMP")
 }
 
 mybatis = {
   "DATE": ("Date"),
-  "DECIMAL": ("Integer", "Long", "BigBecimal")
+  "DECIMAL": ("Integer", "Long", "BigDecimal")
 }
 
 def getJavaType(sqltype):
@@ -295,6 +295,9 @@ def server_request(suf, txt):
 
 # 编码解码
 class EndecodeCommand(sublime_plugin.TextCommand):
+    def __init__(self, x):
+        super().__init__(x)
+        self._server = None
     def run(self, edit, **args):
         reg, txt = getSel(self.view)
         def aes_en(x): 
@@ -330,6 +333,11 @@ class EndecodeCommand(sublime_plugin.TextCommand):
         elif args["func"] == "decoding-aes":
             sublime.Window.show_input_panel(self.view.window(), "Password:", "123456789", aes_de, on_change, on_cancel)
             return
+        elif args["func"] == "start-server":
+            # 开启后端服务
+            _base_dir = os.path.dirname(os.path.abspath(__file__))
+            if self._server is None:
+                self._server = subprocess.Popen('go run "' + _base_dir + '\\bin\\MyUtilServer.go" -p ' + get_config("server_port"), shell=True)
         else:
             return
         self.view.replace(edit, reg, txt)
@@ -426,10 +434,24 @@ class TestCommand(sublime_plugin.TextCommand):
         print(get_config("google_translation_tkk"))
 
 
-# 以下是初始化逻辑，主要是开启后端服务器
+# 以下是初始化逻辑
+import socket
+import threading
+import time
+class MyUtilThread(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+    def run(self):
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        addr = ("127.0.0.1", int(get_config("echo_port")))
+        while True:
+            time.sleep(1)
+            s.sendto(b'ok', addr)
 
-_base_dir = os.path.dirname(os.path.abspath(__file__))
+
 def plugin_loaded():
-    if sublime.platform() == "windows":
-        global _server
-        # _server = subprocess.Popen(_base_dir + "\\bin\\MyUtilServer.exe -p " + get_config("server_port"), shell=True)
+    my = MyUtilThread()
+    my.start()
+    # 开启后端服务
+    _base_dir = os.path.dirname(os.path.abspath(__file__))
+    subprocess.Popen('go run "' + _base_dir + '\\bin\\MyUtilServer.go" -p ' + get_config("server_port") + ' -e ' + get_config("echo_port"), shell=True)

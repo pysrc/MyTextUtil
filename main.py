@@ -335,9 +335,7 @@ class EndecodeCommand(sublime_plugin.TextCommand):
             return
         elif args["func"] == "start-server":
             # 开启后端服务
-            _base_dir = os.path.dirname(os.path.abspath(__file__))
-            if self._server is None:
-                self._server = subprocess.Popen('go run "' + _base_dir + '\\bin\\MyUtilServer.go" -p ' + get_config("server_port"), shell=True)
+            start_server()
         else:
             return
         self.view.replace(edit, reg, txt)
@@ -448,10 +446,26 @@ class MyUtilThread(threading.Thread):
             time.sleep(1)
             s.sendto(b'ok', addr)
 
-
-def plugin_loaded():
+def start_server():
+    _base_dir = os.path.dirname(os.path.abspath(__file__))
+    # 判断是否编译
+    if not os.path.exists(_base_dir + os.sep + "/bin"):
+        os.mkdir(_base_dir + os.sep + "/bin")
+    exe = _base_dir + os.sep + "bin" + os.sep + "MyUtilServer"
+    if sublime.platform() == "windows":
+        exe = exe + ".exe"
+    if not os.path.exists(exe):
+        print("Building Server...")
+        # 编译Server
+        os.chdir(_base_dir + os.sep + "MyUtilServer")
+        p = subprocess.Popen('go build -o ../bin', shell=True)
+        p.wait()
     my = MyUtilThread()
     my.start()
     # 开启后端服务
-    _base_dir = os.path.dirname(os.path.abspath(__file__))
-    subprocess.Popen('go run "' + _base_dir + '\\bin\\MyUtilServer.go" -p ' + get_config("server_port") + ' -e ' + get_config("echo_port"), shell=True)
+    cmd = '"' + exe + '"' + ' -p ' + get_config("server_port") + ' -e ' + get_config("echo_port")
+    print(cmd)
+    subprocess.Popen(cmd, shell=True)
+def plugin_loaded():
+    if get_config("server_enabled"):
+        start_server()

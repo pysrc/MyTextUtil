@@ -460,16 +460,11 @@ class MyUtilThread(threading.Thread):
             s.sendto(b'ok', addr)
 
 def start_server():
-    # 不开启Server
+    # 是否开启Server
     if not get_config("server_enabled"):
         return
     # 判断是否安装Golang
     if not exe_in_path("go"):
-        return
-    goexe = os.getenv("GOROOT")+os.sep+"bin"+os.sep+"go"
-    if platform.system() == "Windows":
-        goexe += ".exe"
-    if not os.path.exists(goexe):
         return
     _base_dir = os.path.dirname(os.path.abspath(__file__))
     # 判断是否编译

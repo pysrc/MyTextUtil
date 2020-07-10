@@ -338,9 +338,6 @@ class EndecodeCommand(sublime_plugin.TextCommand):
         elif args["func"] == "decoding-aes":
             sublime.Window.show_input_panel(self.view.window(), "Password:", "password", aes_de, on_change, on_cancel)
             return
-        elif args["func"] == "start-server":
-            # 开启后端服务
-            start_server()
         else:
             return
         self.view.replace(edit, reg, txt)

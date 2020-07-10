@@ -283,17 +283,8 @@ class ExtractCommand(sublime_plugin.TextCommand):
         def on_cancel(): pass
         sublime.Window.show_input_panel(self.view.window(), "Regex:", r"(\w+)", on_done, on_change, on_cancel)
 
-
-# 请求本地服务器
-def server_request(suf, txt):
-    host = get_config("server_host")
-    port = get_config("server_port")
-    req = urllib.request.urlopen("http://" + host + ":" + port + "/" + suf, base64.b16encode(txt.encode("utf-8")).decode("utf-8").lower().encode())
-    res = req.read()
-    req.close()
-    res = res.decode('utf-8')
-    return res
-
+import hashlib
+from .aes import AES
 # 编码解码
 class EndecodeCommand(sublime_plugin.TextCommand):
     def __init__(self, x):
@@ -303,12 +294,25 @@ class EndecodeCommand(sublime_plugin.TextCommand):
         reg, txt = getSel(self.view)
         def aes_en(x): 
             _, txt = getSel(self.view)
-            txt = base64.b16encode(txt.encode("utf-8")).decode("utf-8").lower()
-            txt = server_request("aes-en", '{"Pwd":"' + x.replace('"', "\\\"") + '","Txt":"' + txt + '"}')
+            m = hashlib.md5()
+            k = m.update(x.encode("utf-8"))
+            k = m.hexdigest()
+            key = k[:16].encode()
+            iv = k[16:].encode()
+            aes = AES(key)
+            cipher_text, _ = aes.encrypt(txt.encode("utf-8"), iv)
+            txt = base64.b16encode(cipher_text).decode("utf-8").lower()
             self.view.run_command("my_sync", {"op": "replace", "txt": txt})
         def aes_de(x): 
             _, txt = getSel(self.view)
-            txt = server_request("aes-de", '{"Pwd":"' + x.replace('"', "\\\"") + '","Txt":"' + txt + '"}')
+            txtb = base64.b16decode(txt.lstrip("0").upper().encode("utf-8"))
+            m = hashlib.md5()
+            k = m.update(x.encode("utf-8"))
+            k = m.hexdigest()
+            key = k[:16].encode()
+            iv = k[16:].encode()
+            aes = AES(key)
+            txt = aes.decrypt(txtb, iv).decode("utf-8")
             self.view.run_command("my_sync", {"op": "replace", "txt": txt})
         def on_change(x): pass
         def on_cancel(): pass
@@ -431,62 +435,3 @@ class TestCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         # sublime.Window.show_quick_panel(self.view.window(), ["Hello", "sdsf"], lambda x : print(x))
         pass
-
-# 以下是初始化逻辑
-import socket
-import threading
-import time
-import platform
-
-# 检测可执行文件是否存在
-def exe_in_path(exe):
-    if platform.system() == "Windows":
-        exe = exe + ".exe"
-    path = os.getenv("PATH")
-    dirs = path.split(os.path.pathsep)
-    for i in dirs:
-        if os.path.exists(i + os.sep + exe) and os.path.isfile(i + os.sep + exe):
-            return True
-    return False
-
-class MyUtilThread(threading.Thread):
-    def __init__(self):
-        threading.Thread.__init__(self)
-    def run(self):
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        addr = ("127.0.0.1", int(get_config("echo_port")))
-        while True:
-            time.sleep(1)
-            s.sendto(b'ok', addr)
-
-def start_server():
-    # 是否开启Server
-    if not get_config("server_enabled"):
-        return
-    _base_dir = os.path.dirname(os.path.abspath(__file__))
-    # 判断程序是否存在
-    exe = _base_dir + os.sep + "bin" + os.sep + "MyUtilServer"
-    if platform.system() == "Windows":
-        exe = exe + ".exe"
-    if not os.path.exists(exe):
-        print("Service program to be compiled...")
-        # 判断是否安装Golang
-        if not exe_in_path("go"):
-            return
-        # 判断bin目录是否存在
-        if not os.path.exists(_base_dir + os.sep + "/bin"):
-            os.mkdir(_base_dir + os.sep + "/bin")
-        print("Building Server...")
-        # 编译Server
-        os.chdir(_base_dir + os.sep + "MyUtilServer")
-        p = subprocess.Popen('go build -o ../bin', shell=True)
-        p.wait()
-    my = MyUtilThread()
-    my.start()
-    # 开启后端服务
-    cmd = '"' + exe + '"' + ' -p ' + get_config("server_port") + ' -e ' + get_config("echo_port")
-    print(cmd)
-    subprocess.Popen(cmd, shell=True)
-def plugin_loaded():
-    server = threading.Thread(target=start_server)
-    server.start()

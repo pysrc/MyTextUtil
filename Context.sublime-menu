@@ -5,7 +5,7 @@
         "children": [
             {
                 "id": "sh", 
-                "caption": "Shell (Windows -> Git)", 
+                "caption": "Shell", 
                 "command": "sh"
             }, 
             {

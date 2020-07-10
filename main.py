@@ -236,7 +236,7 @@ class ShCommand(sublime_plugin.TextCommand):
 class OpenCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         _, txt = getSel(self.view)
-        os.system('start "" "' + txt + '"')
+        subprocess.Popen('start "" "' + txt + '"', shell=True)
 
 # sql表结构初始化mybatis、java数据结构
 class MybatisCommand(sublime_plugin.TextCommand):

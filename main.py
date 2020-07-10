@@ -463,17 +463,18 @@ def start_server():
     # 是否开启Server
     if not get_config("server_enabled"):
         return
-    # 判断是否安装Golang
-    if not exe_in_path("go"):
-        return
     _base_dir = os.path.dirname(os.path.abspath(__file__))
-    # 判断是否编译
-    if not os.path.exists(_base_dir + os.sep + "/bin"):
-        os.mkdir(_base_dir + os.sep + "/bin")
+    # 判断程序是否存在
     exe = _base_dir + os.sep + "bin" + os.sep + "MyUtilServer"
     if platform.system() == "Windows":
         exe = exe + ".exe"
     if not os.path.exists(exe):
+        # 判断是否安装Golang
+        if not exe_in_path("go"):
+            return
+        # 判断bin目录是否存在
+        if not os.path.exists(_base_dir + os.sep + "/bin"):
+            os.mkdir(_base_dir + os.sep + "/bin")
         print("Building Server...")
         # 编译Server
         os.chdir(_base_dir + os.sep + "MyUtilServer")

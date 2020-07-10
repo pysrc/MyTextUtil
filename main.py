@@ -469,6 +469,7 @@ def start_server():
     if platform.system() == "Windows":
         exe = exe + ".exe"
     if not os.path.exists(exe):
+        print("Service program to be compiled...")
         # 判断是否安装Golang
         if not exe_in_path("go"):
             return

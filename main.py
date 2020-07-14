@@ -37,6 +37,8 @@ stand_config = None
 my_config = None
 
 # 获取配置
+
+
 def get_config(key):
     global stand_config, my_config
     if stand_config is None:
@@ -48,14 +50,17 @@ def get_config(key):
         val = my_config.get(key)
     return val
 
+
 def sql_format(sql):
     sql = "query=" + sql
-    req = urllib.request.urlopen("https://www.w3cschool.cn/statics/demosource/tools/toolsAjax.php?action=sql_formatter",bytes(sql, "utf-8"))
+    req = urllib.request.urlopen(
+        "https://www.w3cschool.cn/statics/demosource/tools/toolsAjax.php?action=sql_formatter", bytes(sql, "utf-8"))
     res = req.read()
     req.close()
     res = res.decode('unicode_escape')
-    res = re.findall('"result":"([\s\S]+?)"',res)
+    res = re.findall('"result":"([\s\S]+?)"', res)
     return res[0]
+
 
 def log2sql(sql, split):
     csql = re.compile("Preparing: (.*?)\n")
@@ -68,14 +73,15 @@ def log2sql(sql, split):
     res = ""
     for i in range(len(psql)):
         res += split
-        sarg = re.sub(r"\(.*?\)","",parg[i])
+        sarg = re.sub(r"\(.*?\)", "", parg[i])
         args = sarg.split(",")
         pt = psql[i]
         for k in args:
-            arg = "'"+k.strip()+"'"
+            arg = "'" + k.strip() + "'"
             pt = pt.replace("?", arg, 1)
         res += pt
     return res
+
 
 def tocamel(s):
     s = s.lower()
@@ -90,68 +96,74 @@ def tocamel(s):
         else:
             res += ss[i][0].upper()
             if len(ss[i]) >= 2:
-                res+=ss[i][1:]
+                res += ss[i][1:]
     return res
 
+
 javaSql = {
-  "Integer": ("TINYINT"),
-  "Long": ("SMALLINT", "MEDIUMINT", "INT", "INTEGER", "BIGINT", "INTEGER"),
-  "BigDecimal": ("FLOAT", "DOUBLE", "DECIMAL", "NUMBER", "FLOAT"),
-  "Date": ("DATE", "TIME", "YEAR", "DATETIME", "TIMESTAMP")
+    "Integer": ("TINYINT"),
+    "Long": ("SMALLINT", "MEDIUMINT", "INT", "INTEGER", "BIGINT", "INTEGER"),
+    "BigDecimal": ("FLOAT", "DOUBLE", "DECIMAL", "NUMBER", "FLOAT"),
+    "Date": ("DATE", "TIME", "YEAR", "DATETIME", "TIMESTAMP")
 }
 
 mybatis = {
-  "DATE": ("Date"),
-  "DECIMAL": ("Integer", "Long", "BigDecimal")
+    "DATE": ("Date"),
+    "DECIMAL": ("Integer", "Long", "BigDecimal")
 }
 
+
 def getJavaType(sqltype):
-  for i in javaSql:
-    if sqltype.startswith(javaSql[i]):
-        return i
-  return "String"
+    for i in javaSql:
+        if sqltype.startswith(javaSql[i]):
+            return i
+    return "String"
+
 
 def getJdbctype(javatype):
-  for i in mybatis:
-    if javatype.startswith(mybatis[i]):
-      return i
-  return "VARCHAR"
+    for i in mybatis:
+        if javatype.startswith(mybatis[i]):
+            return i
+    return "VARCHAR"
+
 
 def tocamelb(s):
-  t = tocamel(s)
-  res = t[0].upper()
-  if len(t) >= 2:
-    res += t[1:]
-  return res
+    t = tocamel(s)
+    res = t[0].upper()
+    if len(t) >= 2:
+        res += t[1:]
+    return res
+
 
 def mybatisGen(sql):
-  sql = sql.upper()
-  sql = sql.replace("`", "")
-  p=re.compile("CREATE\s*TABLE\s*(.+?)\s*\(([\s\S]+)\)")
-  r=re.findall(p,sql)
+    sql = sql.upper()
+    sql = sql.replace("`", "")
+    p = re.compile("CREATE\s*TABLE\s*(.+?)\s*\(([\s\S]+)\)")
+    r = re.findall(p, sql)
 
-  table = r[0][0]
-  t = r[0][1].split(",")
-  prop = []
-  for i in t:
-      line = i.strip()
-      if line.startswith(("PRIMARY", "UNIQUE", "KEY")):
-          continue
-      line = re.sub("\s+", " ", line)
-      prop.append(line.split(" "))
+    table = r[0][0]
+    t = r[0][1].split(",")
+    prop = []
+    for i in t:
+        line = i.strip()
+        if line.startswith(("PRIMARY", "UNIQUE", "KEY")):
+            continue
+        line = re.sub("\s+", " ", line)
+        prop.append(line.split(" "))
 
-  java = "public class " + tocamelb(table) + " {\n"
-  my = '<resultMap id="BaseResultMap" type="'+ tocamelb(table) +'">\n'
-  for p in prop:
-    jtype = getJavaType(p[1])
-    mtype = getJdbctype(jtype)
-    jf = tocamel(p[0])
-    line = "    private " + jtype + " " + jf + ";\n"
-    java += line
-    my += '    <result column="'+ p[0] +'" property="'+ jf +'" jdbcType="'+ mtype +'" />\n'
-  java += "}\n"
-  my += "</resultMap>\n"
-  return java + "\n\n" + my
+    java = "public class " + tocamelb(table) + " {\n"
+    my = '<resultMap id="BaseResultMap" type="' + tocamelb(table) + '">\n'
+    for p in prop:
+        jtype = getJavaType(p[1])
+        mtype = getJdbctype(jtype)
+        jf = tocamel(p[0])
+        line = "    private " + jtype + " " + jf + ";\n"
+        java += line
+        my += '    <result column="' + \
+            p[0] + '" property="' + jf + '" jdbcType="' + mtype + '" />\n'
+    java += "}\n"
+    my += "</resultMap>\n"
+    return java + "\n\n" + my
 
 
 def getSel(view):
@@ -160,10 +172,12 @@ def getSel(view):
     sels = view.substr(reg)
     if sels == "":
         reg = sublime.Region(0, view.size())
-        sels = view.substr(reg) # 全部内容
+        sels = view.substr(reg)  # 全部内容
     return reg, sels
 
 # 转大写
+
+
 class UpCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         reg, txt = getSel(self.view)
@@ -179,6 +193,8 @@ class LowCommand(sublime_plugin.TextCommand):
         self.view.replace(edit, reg, txt)
 
 # mybatis日志sql解析
+
+
 class SqlCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         reg, txt = getSel(self.view)
@@ -186,25 +202,31 @@ class SqlCommand(sublime_plugin.TextCommand):
         self.view.replace(edit, reg, log2sql(txt, split))
 
 # 格式化(sql/json)
+
+
 class MyformatCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         reg, txt = getSel(self.view)
         txt = txt.strip()
         if txt.startswith(("{", "[")):
             # json
-            self.view.replace(edit, reg, json.dumps(json.loads(txt), ensure_ascii=False, indent=4))
+            self.view.replace(edit, reg, json.dumps(
+                json.loads(txt), ensure_ascii=False, indent=4))
         else:
             # sql
             self.view.replace(edit, reg, sql_format(txt))
 
 # json压缩（反格式化）
+
+
 class NoformatCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         reg, txt = getSel(self.view)
         txt = txt.strip()
         if not txt.startswith(("{", "[")):
-          return
-        self.view.replace(edit, reg, json.dumps(json.loads(txt), ensure_ascii=False, separators=(',',':')))
+            return
+        self.view.replace(edit, reg, json.dumps(json.loads(
+            txt), ensure_ascii=False, separators=(',', ':')))
 
 
 # 系统命令执行(sh)
@@ -218,13 +240,14 @@ class ShCommand(sublime_plugin.TextCommand):
             os.chdir(current_dir)
         reg, txt = getSel(self.view)
         res = "\n\n----------sh----------\n\n"
-        subp = subprocess.Popen("sh",shell=True,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-        subp.stdin.write(bytes(txt,encoding="utf-8"))
+        subp = subprocess.Popen("sh", shell=True, stdin=subprocess.PIPE,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        subp.stdin.write(bytes(txt, encoding="utf-8"))
         tp = subp.communicate()
-        t = tp[0].decode("utf-8") # 正确输出
+        t = tp[0].decode("utf-8")  # 正确输出
         if t != "":
             res += t
-        t2 = tp[1].decode("utf-8") # 其他输出
+        t2 = tp[1].decode("utf-8")  # 其他输出
         if t2 != "":
             t2 = "\n\n----------Execute Output----------\n\n" + t2
             res = t2 + res
@@ -233,12 +256,16 @@ class ShCommand(sublime_plugin.TextCommand):
         self.view.insert(edit, self.view.size(), res)
 
 # 打开关联的文件夹/网站等
+
+
 class OpenCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         _, txt = getSel(self.view)
         subprocess.Popen('start "" "' + txt + '"', shell=True)
 
 # sql表结构初始化mybatis、java数据结构
+
+
 class MybatisCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         _, txt = getSel(self.view)
@@ -246,21 +273,27 @@ class MybatisCommand(sublime_plugin.TextCommand):
         self.view.insert(edit, self.view.size(), split + mybatisGen(txt))
 
 # 执行Python脚本
+
+
 class PyCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         _, txt = getSel(self.view)
         split = "\n\n----------Python----------\n\n"
-        def out(x = ""):
+
+        def out(x=""):
             self.view.insert(edit, self.view.size(), str(x) + "\n")
         self.view.insert(edit, self.view.size(), split)
         exec(txt)
 
 # 设置命令执行目录
+
+
 class ChdirCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         _, txt = getSel(self.view)
         global current_dir
         current_dir = txt
+
 
 class MySyncCommand(sublime_plugin.TextCommand):
     def run(self, edit, **args):
@@ -271,28 +304,38 @@ class MySyncCommand(sublime_plugin.TextCommand):
             self.view.replace(edit, reg, args["txt"])
 
 # 正则提取
+
+
 class ExtractCommand(sublime_plugin.TextCommand):
     def run(self, edit):
-        def on_done(x): 
+        def on_done(x):
             _, txt = getSel(self.view)
             res = re.findall(x, txt)
             res = "\n".join(res)
             split = "\n\n----------Extract----------\n\n"
-            self.view.run_command("my_sync", {"op": "insert", "txt": split + res})
+            self.view.run_command(
+                "my_sync", {"op": "insert", "txt": split + res})
+
         def on_change(x): pass
         def on_cancel(): pass
-        sublime.Window.show_input_panel(self.view.window(), "Regex:", r"(\w+)", on_done, on_change, on_cancel)
+        sublime.Window.show_input_panel(
+            self.view.window(), "Regex:", r"(\w+)", on_done, on_change, on_cancel)
+
 
 import hashlib
 from .aes import AES
 # 编码解码
+
+
 class EndecodeCommand(sublime_plugin.TextCommand):
     def __init__(self, x):
         super().__init__(x)
         self._server = None
+
     def run(self, edit, **args):
         reg, txt = getSel(self.view)
-        def aes_en(x): 
+
+        def aes_en(x):
             _, txt = getSel(self.view)
             m = hashlib.md5()
             k = m.update(x.encode("utf-8"))
@@ -303,7 +346,8 @@ class EndecodeCommand(sublime_plugin.TextCommand):
             cipher_text, _ = aes.encrypt(txt.encode("utf-8"), iv)
             txt = base64.b16encode(cipher_text).decode("utf-8").lower()
             self.view.run_command("my_sync", {"op": "replace", "txt": txt})
-        def aes_de(x): 
+
+        def aes_de(x):
             _, txt = getSel(self.view)
             txtb = base64.b16decode(txt.lstrip("0").upper().encode("utf-8"))
             m = hashlib.md5()
@@ -314,6 +358,7 @@ class EndecodeCommand(sublime_plugin.TextCommand):
             aes = AES(key)
             txt = aes.decrypt(txtb, iv).decode("utf-8")
             self.view.run_command("my_sync", {"op": "replace", "txt": txt})
+
         def on_change(x): pass
         def on_cancel(): pass
         if args["func"] == "encoding-base64":
@@ -333,31 +378,38 @@ class EndecodeCommand(sublime_plugin.TextCommand):
         elif args["func"] == "decoding-hex":
             txt = base64.b16decode(txt.upper().encode("utf-8")).decode("utf-8")
         elif args["func"] == "encoding-aes":
-            sublime.Window.show_input_panel(self.view.window(), "Password:", "password", aes_en, on_change, on_cancel)
+            sublime.Window.show_input_panel(
+                self.view.window(), "Password:", "password", aes_en, on_change, on_cancel)
             return
         elif args["func"] == "decoding-aes":
-            sublime.Window.show_input_panel(self.view.window(), "Password:", "password", aes_de, on_change, on_cancel)
+            sublime.Window.show_input_panel(
+                self.view.window(), "Password:", "password", aes_de, on_change, on_cancel)
             return
         else:
             return
         self.view.replace(edit, reg, txt)
 
 # Google翻译接口
+
+
 def google_translation(sl, tl, txt):
     # sl 源语言
     # tl 翻译后语言
     # txt 文本
-    req = urllib.request.urlopen("http://translate.google.cn/translate_a/single?client=at&sl=" + sl + "&tl=" + tl + "&dt=t&q=" + parse.quote(txt))
+    req = urllib.request.urlopen(
+        "http://translate.google.cn/translate_a/single?client=at&sl=" + sl + "&tl=" + tl + "&dt=t&q=" + parse.quote(txt))
     res = req.read()
     req.close()
-    res=res.decode("utf-8")
-    res=json.loads(res)
+    res = res.decode("utf-8")
+    res = json.loads(res)
     return res[0][0][0]
 
 # Google翻译接口获取tk
+
+
 def get_tk(a, tkk):
     def RL(a, b):
-        for d in range(0, len(b)-2, 3):
+        for d in range(0, len(b) - 2, 3):
             c = b[d + 2]
             c = ord(c[0]) - 87 if 'a' <= c else int(c)
             c = a >> c if '+' == b[d + 1] else a << c
@@ -373,7 +425,7 @@ def get_tk(a, tkk):
             if 2048 > c:
                 g.append((c >> 6) | 192)
             else:
-                if (55296 == (c & 64512)) and (f + 1 < len(a)) and (56320 == (ord(a[f+1]) & 64512)):
+                if (55296 == (c & 64512)) and (f + 1 < len(a)) and (56320 == (ord(a[f + 1]) & 64512)):
                     f += 1
                     c = 65536 + ((c & 1023) << 10) + (ord(a[f]) & 1023)
                     g.append((c >> 18) | 240)
@@ -397,16 +449,27 @@ def get_tk(a, tkk):
     return str(result) + '.' + str(result ^ h)
 
 # Google翻译接口(不禁止IP，但是tkk需要去谷歌网页版找)
+
+
 def google_translation_tk(sl, tl, txt):
     tk = get_tk(txt, get_config("google_translation_tkk"))
-    url = "https://translate.google.cn/translate_a/single?client=webapp&sl=" + sl + "&tl=" + tl + "&hl=zh-CN&dt=at&dt=bd&dt=ex&dt=ld&dt=md&dt=qca&dt=rw&dt=rm&dt=sos&dt=ss&dt=t&otf=1&ssel=0&tsel=0&kc=1&tk=" + tk + "&q=" + parse.quote(txt)
-    req = urllib.request.urlopen(url)
+    url = "https://translate.google.cn/translate_a/single"
+    body = "client=webapp&sl=" + sl + "&tl=" + tl + \
+        "&hl=zh-CN&dt=at&dt=bd&dt=ex&dt=ld&dt=md&dt=qca&dt=rw&dt=rm&dt=sos&dt=ss&dt=t&otf=1&ssel=0&tsel=0&kc=1&tk=" + \
+        tk + "&q=" + parse.quote(txt)
+    req = urllib.request.urlopen(url, data=body.encode("utf-8"))
     res = req.read()
     req.close()
-    res=res.decode("utf-8")
-    res=json.loads(res)
-    return res[0][0][0]
+    res = res.decode("utf-8")
+    res = json.loads(res)
+    t = ""
+    for i in res[0]:
+        if i[0] is not None and type(i[0]) == str:
+            t += i[0]
+    return t
 # 翻译
+
+
 class TranslationCommand(sublime_plugin.TextCommand):
     def run(self, edit, **args):
         reg, txt = getSel(self.view)
@@ -414,10 +477,11 @@ class TranslationCommand(sublime_plugin.TextCommand):
         self.view.replace(edit, reg, txt)
 
 # 帮助信息
+
+
 class MyhelpCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         self.view.insert(edit, self.view.size(), help_info)
-
 
 
 # 自动提示
@@ -425,8 +489,10 @@ class MyTextUtil(sublime_plugin.EventListener):
     def on_query_completions(self, view, prefix, locations):
         subtype = sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_EXPLICIT_COMPLETIONS
         cmds = []
-        cmds.append(["curl\tcurl -X POST...", """curl -X POST 'http://127.0.0.1:8080/demo' \\\n  -H "Content-Type: application/json" \\\n  --data-binary '{}'"""])
+        cmds.append(["curl\tcurl -X POST...",
+                     """curl -X POST 'http://127.0.0.1:8080/demo' \\\n  -H "Content-Type: application/json" \\\n  --data-binary '{}'"""])
         return (cmds, subtype)
+
 
 class TestCommand(sublime_plugin.TextCommand):
     def run(self, edit):

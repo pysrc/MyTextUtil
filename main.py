@@ -260,7 +260,15 @@ class ShCommand(sublime_plugin.TextCommand):
 
 class OpenCommand(sublime_plugin.TextCommand):
     def run(self, edit):
-        _, txt = getSel(self.view)
+        # _, txt = getSel(self.view)
+        sel = self.view.sel()
+        reg = sel[0]
+        txt = self.view.substr(reg)
+        if txt == "":
+            name = self.view.file_name()
+            if name is None:
+                return
+            txt = os.path.dirname(name)
         subprocess.Popen('start "" "' + txt + '"', shell=True)
 
 # sql表结构初始化mybatis、java数据结构

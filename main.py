@@ -52,7 +52,7 @@ def get_config(key):
 
 
 def sql_format(sql):
-    sql = "query=" + sql
+    sql = "query=" + parse.quote(sql)
     req = urllib.request.urlopen(
         "https://www.w3cschool.cn/statics/demosource/tools/toolsAjax.php?action=sql_formatter", bytes(sql, "utf-8"))
     res = req.read()

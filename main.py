@@ -180,17 +180,21 @@ def getSel(view):
 
 class UpCommand(sublime_plugin.TextCommand):
     def run(self, edit):
-        reg, txt = getSel(self.view)
-        txt = txt.upper()
-        self.view.replace(edit, reg, txt)
+        sels = self.view.sel()
+        for reg in sels:
+            txt = self.view.substr(reg)
+            txt = txt.upper()
+            self.view.replace(edit, reg, txt)
 
 
 # 转为小写
 class LowCommand(sublime_plugin.TextCommand):
     def run(self, edit):
-        reg, txt = getSel(self.view)
-        txt = txt.lower()
-        self.view.replace(edit, reg, txt)
+        sels = self.view.sel()
+        for reg in sels:
+            txt = self.view.substr(reg)
+            txt = txt.lower()
+            self.view.replace(edit, reg, txt)
 
 # mybatis日志sql解析
 

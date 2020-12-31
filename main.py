@@ -345,8 +345,6 @@ class EndecodeCommand(sublime_plugin.TextCommand):
         self._server = None
 
     def run(self, edit, **args):
-        reg, txt = getSel(self.view)
-
         def aes_en(x):
             _, txt = getSel(self.view)
             m = hashlib.md5()
@@ -373,33 +371,40 @@ class EndecodeCommand(sublime_plugin.TextCommand):
 
         def on_change(x): pass
         def on_cancel(): pass
-        if args["func"] == "encoding-base64":
-            txt = str(base64.b64encode(txt.encode("utf-8")), encoding="utf-8")
-        elif args["func"] == "decoding-base64":
-            txt = base64.b64decode(txt.encode("utf-8")).decode("utf-8")
-        elif args["func"] == "encoding-url":
-            txt = parse.quote(txt)
-        elif args["func"] == "decoding-url":
-            txt = parse.unquote(txt)
-        elif args["func"] == "encoding-unicode":
-            txt = str(txt.encode('unicode_escape'), encoding="utf-8")
-        elif args["func"] == "decoding-unicode":
-            txt = bytes(txt, encoding="utf-8").decode('unicode_escape')
-        elif args["func"] == "encoding-hex":
-            txt = base64.b16encode(txt.encode("utf-8")).decode("utf-8").lower()
-        elif args["func"] == "decoding-hex":
-            txt = base64.b16decode(txt.upper().encode("utf-8")).decode("utf-8")
-        elif args["func"] == "encoding-aes":
-            sublime.Window.show_input_panel(
-                self.view.window(), "Password:", "password", aes_en, on_change, on_cancel)
-            return
-        elif args["func"] == "decoding-aes":
-            sublime.Window.show_input_panel(
-                self.view.window(), "Password:", "password", aes_de, on_change, on_cancel)
-            return
-        else:
-            return
-        self.view.replace(edit, reg, txt)
+        # 选中的部分
+        sels = self.view.sel()
+        for reg in sels:
+            txt = self.view.substr(reg)
+            if args["func"] == "encoding-base64":
+                txt = str(base64.b64encode(
+                    txt.encode("utf-8")), encoding="utf-8")
+            elif args["func"] == "decoding-base64":
+                txt = base64.b64decode(txt.encode("utf-8")).decode("utf-8")
+            elif args["func"] == "encoding-url":
+                txt = parse.quote(txt)
+            elif args["func"] == "decoding-url":
+                txt = parse.unquote(txt)
+            elif args["func"] == "encoding-unicode":
+                txt = str(txt.encode('unicode_escape'), encoding="utf-8")
+            elif args["func"] == "decoding-unicode":
+                txt = bytes(txt, encoding="utf-8").decode('unicode_escape')
+            elif args["func"] == "encoding-hex":
+                txt = base64.b16encode(txt.encode(
+                    "utf-8")).decode("utf-8").lower()
+            elif args["func"] == "decoding-hex":
+                txt = base64.b16decode(
+                    txt.upper().encode("utf-8")).decode("utf-8")
+            elif args["func"] == "encoding-aes":
+                sublime.Window.show_input_panel(
+                    self.view.window(), "Password:", "password", aes_en, on_change, on_cancel)
+                return
+            elif args["func"] == "decoding-aes":
+                sublime.Window.show_input_panel(
+                    self.view.window(), "Password:", "password", aes_de, on_change, on_cancel)
+                return
+            else:
+                return
+            self.view.replace(edit, reg, txt)
 
 # Google翻译接口
 

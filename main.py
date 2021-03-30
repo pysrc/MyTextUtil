@@ -196,6 +196,17 @@ class LowCommand(sublime_plugin.TextCommand):
             txt = txt.lower()
             self.view.replace(edit, reg, txt)
 
+# 驼峰转换
+
+
+class CamelCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        sels = self.view.sel()
+        for reg in sels:
+            txt = self.view.substr(reg)
+            txt = tocamel(txt)
+            self.view.replace(edit, reg, txt)
+
 # mybatis日志sql解析
 
 

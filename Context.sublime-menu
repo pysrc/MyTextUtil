@@ -22,6 +22,11 @@
                 "id": "sql"
             }, 
             {
+                "caption": "To camel",
+                "command": "camel",
+                "id": "camel"
+            },
+            {
                 "caption": "To Upper", 
                 "command": "up", 
                 "id": "up"

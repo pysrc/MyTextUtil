@@ -196,6 +196,20 @@ class LowCommand(sublime_plugin.TextCommand):
             txt = txt.lower()
             self.view.replace(edit, reg, txt)
 
+# 大小写转换
+
+
+class UplowCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        sels = self.view.sel()
+        for reg in sels:
+            txt = self.view.substr(reg)
+            if txt[0].islower():
+                txt = txt.upper()
+            else:
+                txt = txt.lower()
+            self.view.replace(edit, reg, txt)
+
 # 驼峰转换
 
 

@@ -27,6 +27,11 @@
                 "id": "camel"
             },
             {
+                "caption": "To recamel",
+                "command": "recamel",
+                "id": "recamel"
+            },
+            {
                 "caption": "To Upper", 
                 "command": "up", 
                 "id": "up"

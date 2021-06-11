@@ -99,6 +99,17 @@ def tocamel(s):
                 res += ss[i][1:]
     return res
 
+# 驼峰转下划线
+
+
+def to_re_camel(s):
+    r = ""
+    for i in s:
+        if not i.islower():
+            r += "_"
+        r += i
+    return r.upper()
+
 
 javaSql = {
     "Integer": ("TINYINT"),
@@ -219,6 +230,17 @@ class CamelCommand(sublime_plugin.TextCommand):
         for reg in sels:
             txt = self.view.substr(reg)
             txt = tocamel(txt)
+            self.view.replace(edit, reg, txt)
+
+# 驼峰转下划线
+
+
+class RecamelCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        sels = self.view.sel()
+        for reg in sels:
+            txt = self.view.substr(reg)
+            txt = to_re_camel(txt)
             self.view.replace(edit, reg, txt)
 
 # mybatis日志sql解析

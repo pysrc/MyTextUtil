@@ -7,6 +7,11 @@
                 "id": "sh"
             }, 
             {
+                "caption": "Curl", 
+                "command": "curl", 
+                "id": "curl"
+            },
+            {
                 "caption": "Change Current Dir", 
                 "command": "chdir", 
                 "id": "chdir"

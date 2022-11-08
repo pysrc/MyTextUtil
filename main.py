@@ -306,6 +306,29 @@ class ShCommand(sublime_plugin.TextCommand):
             subp.kill()
         self.view.insert(edit, self.view.size(), res)
 
+# curl命令
+class CurlCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        reg, txt = getSel(self.view)
+        txt = txt.replace("\\\n", " ")
+        txt = str(txt.encode('unicode_escape'), encoding="utf-8")
+        res = "\n\n----------sh----------\n\n"
+        subp = subprocess.Popen("sh", shell=True, stdin=subprocess.PIPE,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        subp.stdin.write(bytes(txt, encoding="utf-8"))
+        tp = subp.communicate()
+        t = tp[0].decode("utf-8")  # 正确输出
+        if t != "":
+            res += t
+        t2 = tp[1].decode("utf-8")  # 其他输出
+        if t2 != "":
+            t2 = "\n\n----------Execute Output----------\n\n" + t2
+            res = t2 + res
+        if subp.poll() != 0:
+            subp.kill()
+        self.view.insert(edit, self.view.size(), res)
+
+
 # 打开关联的文件夹/网站等
 
 
